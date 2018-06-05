@@ -19,6 +19,21 @@ selectObject: wav
 plusObject: tg
 grid$ = selected$ ("TextGrid")
 sound$ = selected$ ("Sound") 
+# Select: spec_start, spec_end
+total_dur = end - start
+spec_start = 0.25 * total_dur + start 
+spec_end = 0.75 * total_dur + start 
+select Sound 'sound$'
+Edit
+	editor Sound 'sound$'
+	Move cursor to: spec_start 
+	View spectral slice
+endeditor 
+# slice$ = selected$ ("Spectrum")
+# select Spectrum 'slice$'
+# View & Edit
+
+
 
 # add annotation tier and boundaries
 select TextGrid 'grid$'
@@ -35,18 +50,20 @@ Insert boundary... numberOfTiers+1 end
 
 plus Sound 'sound$'
 # zoom in on focused part
-View & Edit
-editor TextGrid 'grid$'
-	Zoom: start, end
+ View & Edit
+ editor TextGrid 'grid$'
+	Zoom: start-0.02, end+0.02
 endeditor
 
+#loc = .5 * (end - start)
 
-select Sound 'sound$'
-Edit
-editor Sound 'sound$'
-	Zoom: start, end
-	Select: start, end
-endeditor
+
+#select Sound 'sound$'
+#Edit
+#editor Sound 'sound$'
+#Zoom: start-3, end+3
+#	Select: start, end
+#endeditor
 
 writeInfoLine: "COG: ", cog
 appendInfoLine: "Peak: ", peak

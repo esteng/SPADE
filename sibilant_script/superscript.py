@@ -9,7 +9,7 @@ import platform
 
 np.random.seed(1234)
 
-CORPUS_LIST = ["SB_West", "Raleigh"]
+CORPUS_LIST = ["Raleigh"]
 
 def get_sample(path):
 	sib_df = pd.read_csv(path)
@@ -39,7 +39,26 @@ def input_taker(df,locations):
 	row_idx = 0
 	print(enter)
 
+	timeout = "1000"
 	while enter.strip() is "":
+		# close all current windows
+		close_path =  os.path.join(os.path.split(os.path.abspath(__file__))[0],  "close_script.praat")
+		close_str = "execute {}".format(close_path)
+		if platform.system() == "Darwin":
+			cmd = ["./sendpraat", timeout, "praat", close_str]
+		else:
+			cmd = ["sendpraat.exe", timeout, "praat", close_str]
+		# print(quote_str)
+		with Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE) as p:
+			try:
+				text = str(p.stdout.read().decode('latin'))
+				err = str(p.stderr.read().decode('latin'))
+				print(err)
+				print(text)
+			except UnicodeDecodeError:
+				print(p.stdout.read())
+				print(p.stderr.read())
+
 		# get a line from the df
 		row = df.iloc[row_idx]
 		filename = row["discourse"]
@@ -76,14 +95,17 @@ def input_taker(df,locations):
 																   spread)
 
 		if platform.system() == "Darwin":
-			cmd = ["./sendpraat", "praat", quote_str]
+			print("sending to praat on mac")
+			cmd = ["./sendpraat", timeout, "praat", quote_str]
 		else:
-			cmd = ["sendpraat.exe", "praat", quote_str]
+			cmd = ["sendpraat.exe", timeout, "praat", quote_str]
 		# print(quote_str)
 		with Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE) as p:
 			try:
 				text = str(p.stdout.read().decode('latin'))
 				err = str(p.stderr.read().decode('latin'))
+				print(err)
+				print(text)
 			except UnicodeDecodeError:
 				print(p.stdout.read())
 				print(p.stderr.read())
@@ -118,4 +140,4 @@ sub_df = one_perc_df[one_perc_df.corpus.isin(CORPUS_LIST)]
 loc_dict = get_locations(corpora, "locations.txt")
 input_taker(sub_df, loc_dict)
 
-print(one_perc_df.shape)
+# print(one_perc_df.shape)
